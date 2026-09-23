@@ -169,7 +169,9 @@ def build_sepsis_panel() -> PanelSpec:
         ),
     ]
 
-    operators = ["E. Seymour", "R. Patel"]
+    # Placeholder names. The operator alternates between runs and carries no injected
+    # effect, so it acts as a control variable in the monitoring view.
+    operators = ["Operator A", "Operator B"]
     # One wafer lot per run, changing halfway through the series.
     wafers = ["WF-2607"] * 5 + ["WF-2608"] * 5
     # One coating batch per run, as in the lab: every chip in a run shares its surface
@@ -256,7 +258,7 @@ def build_cardiac_panel() -> PanelSpec:
         RunSpec(
             run_id=f"CARD-2026-W{date.isocalendar().week:02d}",
             run_date=date,
-            operator="R. Patel",
+            operator="Operator B",
             room_temp_c=21.5 + 0.2 * i,
             room_humidity_pct=45.0 - 0.3 * i,
             spotter_temp_c=22.5,

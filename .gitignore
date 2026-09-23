@@ -26,6 +26,10 @@ data/*.db-journal
 reports/*.html
 reports/*.pdf
 
+# Word originals of the planning documents. The Markdown version of the same content
+# is tracked instead: it diffs cleanly in review, while a binary duplicate does not.
+planning/*.docx
+
 # Editor and OS
 .DS_Store
 .vscode/
