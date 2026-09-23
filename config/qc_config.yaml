@@ -1,0 +1,66 @@
+# Biosensor spotting QC configuration
+#
+# Everything a scientist may want to tune lives here: QC thresholds, the antibody
+# panels, and the rules that decide when the monitoring dashboard raises a flag.
+# Adding a new panel means adding an entry under `panels:` -- no code changes.
+
+database:
+  # Relative to the project root.
+  path: data/qc.db
+
+# Applied to any panel that does not override them.
+defaults:
+  density_min_ng_mm2: 3.0     # chip fails if an antibody's mean spot density is below this
+  cv_max_pct: 20.0            # chip fails if an antibody's within-chip replicate CV exceeds this
+  replicates_per_antibody: 6  # expected number of replicate spots per antibody per chip
+  chips_per_run: 20           # expected chips per spotting run (used for validation warnings only)
+
+panels:
+  Sepsis-4plex:
+    description: Sepsis biomarker panel, three capture antibodies plus a negative control.
+    antibodies:
+      - Anti-IL-6
+      - Anti-PCT
+      - Anti-TNFa
+      - Isotype-IgG1
+    # The negative control spot: an isotype-matched mouse IgG1 with no specificity for
+    # any human biomarker. (Deliberately not anti-BSA, which would bind the BSA in
+    # most blocking buffers.) It is spotted and measured like every other antibody, so
+    # it carries the same deposition criteria here -- its low-signal requirement
+    # belongs to the assay readout, not to spotting QC.
+    #
+    # Naming it here makes it a diagnostic rather than just another row: a density drop
+    # that includes the control implicates the surface or the spotter, while a drop
+    # that spares it implicates that antibody's stock.
+    reference_antibody: Isotype-IgG1
+    # Optional per-panel threshold overrides:
+    # density_min_ng_mm2: 3.0
+    # cv_max_pct: 20.0
+    #
+    # Optional per-antibody overrides, for an antibody that legitimately spots
+    # lower or more variably than the rest of the panel:
+    # antibody_overrides:
+    #   Anti-TNFa:
+    #     density_min_ng_mm2: 2.5
+
+  Cardiac-3plex:
+    description: Three-plex cardiac panel, used to confirm multi-panel support.
+    antibodies:
+      - Anti-cTnI
+      - Anti-BNP
+      - Anti-Myoglobin
+    cv_max_pct: 18.0
+    chips_per_run: 12
+
+# Part 2 monitoring: when to raise a flag in the Alerts panel.
+# These are intentionally conservative. Every flag is reported as a lead to
+# investigate, with its effect size and n shown, never as statistical proof.
+monitoring:
+  min_runs_for_trend: 4          # below this many runs, trend flags are suppressed
+  trend_window_runs: 6           # most recent runs considered for trend fitting
+  density_decline_pct_flag: 12.0 # flag if fitted density decline over the window exceeds this %
+  slope_p_max: 0.10              # and the regression slope p-value is at or below this
+  cv_rise_pct_points_flag: 5.0   # flag if chip-to-chip CV rises by this many percentage points
+  failure_rate_rise_points_flag: 10.0  # flag if failure rate rises by this many percentage points
+  correlation_r_min: 0.6         # |Pearson r| at or above this is reported as an association
+  lot_step_change_pct: 10.0      # density shift across a lot boundary that implicates the lot

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Microarray Spotting QC report {{ run.spotting_run_id }}</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface: #fcfcfb;
+    --surface-raised: #ffffff;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #77756f;
+    --border: #e2e1dc;
+    --good: #0ca30c;
+    --critical: #d03b3b;
+    --warning: #fab219;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 32px 16px 64px;
+    background: var(--surface);
+    color: var(--text-primary);
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+  }
+  .sheet { max-width: 1040px; margin: 0 auto; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 28px; }
+  h1 { font-size: 24px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  h2 { font-size: 17px; margin: 36px 0 12px; letter-spacing: -0.01em; }
+  .subtitle { color: var(--text-secondary); margin: 0; }
+  .verdict {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 14px; padding: 6px 12px; border-radius: 999px;
+    font-size: 13px; font-weight: 600;
+    border: 1px solid var(--border); background: var(--surface-raised);
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 20px 0 8px; }
+  .tile { background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .tile .label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .tile .value { font-size: 26px; font-weight: 600; margin-top: 4px; letter-spacing: -0.02em; }
+  .tile .sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  dl.meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px 24px; margin: 0; }
+  dl.meta div { border-bottom: 1px solid var(--border); padding-bottom: 7px; }
+  dl.meta dt { font-size: 12px; color: var(--text-muted); }
+  dl.meta dd { margin: 2px 0 0; font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  th { text-align: left; font-size: 12px; color: var(--text-muted); font-weight: 600;
+       text-transform: uppercase; letter-spacing: 0.04em; padding: 8px 10px;
+       border-bottom: 1px solid var(--border); }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.failed td { background: rgba(208, 59, 59, 0.05); }
+  .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
+  .note { color: var(--text-secondary); font-size: 13px; margin: 10px 0 0; }
+  .figure { background: var(--surface-raised); border: 1px solid var(--border);
+            border-radius: 10px; padding: 8px; margin-top: 14px; }
+  footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--border);
+           color: var(--text-muted); font-size: 12px; }
+  @media print {
+    body { padding: 0; background: #fff; }
+    .figure, .tile { break-inside: avoid; }
+    h2 { break-after: avoid; }
+    table { break-inside: auto; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<header>
+  <h1>Microarray Spotting QC report &middot; {{ run.spotting_run_id }}</h1>
+  <p class="subtitle">
+    {{ run.panel }} &middot; spotted {{ run.run_date }}
+    {% if run.operator %}&middot; {{ run.operator }}{% endif %}
+  </p>
+  <div class="verdict">
+    <span class="dot" style="background: {{ verdict_color }}"></span>
+    {{ verdict_text }}
+  </div>
+</header>
+
+<div class="tiles">
+  <div class="tile">
+    <div class="label">Chips spotted</div>
+    <div class="value">{{ run.n_chips }}</div>
+    <div class="sub">{{ run.n_chips - run.n_chips_failed }} released</div>
+  </div>
+  <div class="tile">
+    <div class="label">Chips failed</div>
+    <div class="value">{{ run.n_chips_failed }}</div>
+    <div class="sub">{{ '%.1f'|format(run.failure_rate_pct) }}% of the run</div>
+  </div>
+  <div class="tile">
+    <div class="label">Failure rate</div>
+    <div class="value">{{ '%.0f'|format(run.failure_rate_pct) }}%</div>
+    <div class="sub">
+      {% if series_average is not none %}series average {{ '%.0f'|format(series_average) }}%{% else %}first run{% endif %}
+    </div>
+  </div>
+  <div class="tile">
+    <div class="label">QC limits applied</div>
+    <div class="value">{{ '%g'|format(run.density_min_ng_mm2) }}</div>
+    <div class="sub">ng/mm² minimum &middot; {{ '%g'|format(run.cv_max_pct) }}% CV maximum</div>
+  </div>
+</div>
+
+<h2>Run conditions</h2>
+<dl class="meta">
+  <div><dt>Coating batch</dt><dd>{{ coating_batches or 'not recorded' }}</dd></div>
+  <div><dt>Wafer lot</dt><dd>{{ wafer_ids or 'not recorded' }}</dd></div>
+  <div><dt>Room temperature</dt><dd>{{ fmt(run.room_temp_c, '°C') }}</dd></div>
+  <div><dt>Room humidity</dt><dd>{{ fmt(run.room_humidity_pct, '%') }}</dd></div>
+  <div><dt>Spotter temperature</dt><dd>{{ fmt(run.spotter_temp_c, '°C') }}</dd></div>
+  <div><dt>Spotter humidity</dt><dd>{{ fmt(run.spotter_humidity_pct, '%') }}</dd></div>
+</dl>
+
+<h2>Antibody lots used</h2>
+{% if lots %}
+<table>
+  <thead><tr>
+    <th>Antibody</th><th>Lot</th><th>Received</th><th class="num">Stock age (days)</th>
+  </tr></thead>
+  <tbody>
+  {% for lot in lots %}
+    <tr>
+      <td>{{ lot.antibody }}</td>
+      <td>{{ lot.ab_lot or 'not recorded' }}</td>
+      <td>{{ lot.lot_received_date or 'not recorded' }}</td>
+      <td class="num">{{ lot.lot_age_days if lot.lot_age_days is not none else '—' }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="note">No antibody lot information was recorded for this run, so lot-based
+diagnostics are unavailable for it in the monitoring view.</p>
+{% endif %}
+
+<h2>Per-antibody summary</h2>
+<table>
+  <thead><tr>
+    <th>Antibody</th>
+    <th class="num">Mean spot height</th>
+    <th class="num">Chip-to-chip CV</th>
+    <th class="num">Mean within-chip CV</th>
+    <th class="num">Chips failed</th>
+    <th>Reasons</th>
+  </tr></thead>
+  <tbody>
+  {% for row in antibody_summary %}
+    <tr {% if row.n_chips_failed %}class="failed"{% endif %}>
+      <td>{{ row.antibody }}</td>
+      <td class="num">{{ '%.2f'|format(row.pooled_mean_density) }} ng/mm²</td>
+      <td class="num">{{ fmt(row.chip_to_chip_cv_pct, '%') }}</td>
+      <td class="num">{{ fmt(row.mean_within_chip_cv_pct, '%') }}</td>
+      <td class="num">{{ row.n_chips_failed }} / {{ row.n_chips }}</td>
+      <td>
+        {%- if row.n_failed_low_density %}{{ row.n_failed_low_density }} low density{% endif -%}
+        {%- if row.n_failed_low_density and row.n_failed_high_cv %}, {% endif -%}
+        {%- if row.n_failed_high_cv %}{{ row.n_failed_high_cv }} high CV{% endif -%}
+        {%- if not row.n_chips_failed %}—{% endif -%}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2>Chip results</h2>
+<table>
+  <thead><tr>
+    <th>Chip</th><th>Status</th><th>Wafer</th><th>Coating batch</th><th>Reason for failure</th>
+  </tr></thead>
+  <tbody>
+  {% for chip in chips %}
+    <tr {% if chip.status == 'FAIL' %}class="failed"{% endif %}>
+      <td>{{ chip.chip_id }}</td>
+      <td>
+        <span class="pill">
+          <span class="dot" style="background: {{ good_color if chip.status == 'PASS' else critical_color }}"></span>
+          {{ chip.status }}
+        </span>
+      </td>
+      <td>{{ chip.wafer_id or '—' }}</td>
+      <td>{{ chip.coating_batch or '—' }}</td>
+      <td>{{ chip.fail_reason_summary or '—' }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2>Distributions</h2>
+<div class="figure">{{ density_figure }}</div>
+<div class="figure">{{ cv_figure }}</div>
+<div class="figure">{{ heatmap_figure }}</div>
+
+{% if context_notes %}
+<h2>This run in context</h2>
+<ul class="note">
+  {% for note in context_notes %}<li>{{ note }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+<footer>
+  Generated {{ generated_at }} from {{ source_files }}.
+  Chips fail when an antibody's mean spot height falls below
+  {{ '%g'|format(run.density_min_ng_mm2) }} ng/mm² or its replicate CV exceeds
+  {{ '%g'|format(run.cv_max_pct) }}%. A chip fails if any of its antibodies fails.
+  Spot height is reported as antibody surface density in ng/mm².
+</footer>
+
+</div>
+</body>
+</html>

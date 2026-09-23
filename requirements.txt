@@ -1,0 +1,23 @@
+# Core data + analysis
+pandas>=2.2
+numpy>=1.26
+scipy>=1.13
+statsmodels>=0.14
+
+# Persistence
+SQLAlchemy>=2.0
+
+# Config
+PyYAML>=6.0
+
+# Dashboard
+dash>=2.17
+dash-bootstrap-components>=1.6
+plotly>=5.22
+
+# Reporting (HTML report; static chart images for the printable/PDF report)
+Jinja2>=3.1
+kaleido>=0.2.1
+
+# Tests
+pytest>=8.0

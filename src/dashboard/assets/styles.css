@@ -1,0 +1,284 @@
+/* Dashboard chrome.
+   Dark mode is its own set of values chosen for the dark surface, not an inversion.
+   The theme is driven by data-theme on <html>, set by the toggle in the header. */
+
+:root {
+  color-scheme: light;
+  --surface: #fcfcfb;
+  --surface-raised: #ffffff;
+  --surface-sunken: #f4f3f0;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #77756f;
+  --border: #e2e1dc;
+  --accent: #2a78d6;
+  --good: #0ca30c;
+  --critical: #d03b3b;
+  --shadow: 0 1px 2px rgba(11, 11, 11, 0.05);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface: #131312;
+  --surface-raised: #1f1f1e;
+  --surface-sunken: #1a1a19;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #95948b;
+  --border: #33332f;
+  --accent: #3987e5;
+  --shadow: none;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- header ---------- */
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+}
+
+.header-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 60px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.brand span {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 0;
+}
+
+.nav { display: flex; gap: 4px; flex: 1; }
+
+.nav a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 7px 12px;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+
+.nav a:hover { background: var(--surface-sunken); color: var(--text-primary); }
+.nav a.active { background: var(--surface-sunken); color: var(--text-primary); font-weight: 600; }
+
+/* One filter row above the content, never inside a chart card. */
+.header-controls { display: flex; align-items: center; gap: 12px; }
+.header-controls label { font-size: 12px; color: var(--text-muted); }
+
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: 7px;
+  padding: 6px 11px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.theme-toggle:hover { color: var(--text-primary); border-color: var(--text-muted); }
+
+/* ---------- layout ---------- */
+
+.page {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 28px 24px 80px;
+}
+
+.page-title { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.015em; }
+.page-subtitle { color: var(--text-secondary); margin: 0 0 24px; max-width: 76ch; }
+
+.section { margin-top: 36px; }
+.section-title { font-size: 16px; margin: 0 0 6px; letter-spacing: -0.01em; }
+.section-note { color: var(--text-secondary); font-size: 13.5px; margin: 0 0 14px; max-width: 82ch; }
+
+.card {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
+}
+
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 18px; }
+
+.chart-note {
+  color: var(--text-muted);
+  font-size: 12.5px;
+  margin: 2px 10px 8px;
+  max-width: 88ch;
+}
+
+.graph { width: 100%; }
+.table-wrap { padding: 10px 6px 4px; }
+
+/* ---------- tiles ---------- */
+
+.tile-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.tile {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 14px 16px;
+}
+
+.tile-label {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.045em;
+  font-weight: 600;
+}
+.tile-value { font-size: 27px; font-weight: 620; letter-spacing: -0.02em; margin-top: 3px; }
+.tile-sub { font-size: 12.5px; color: var(--text-secondary); }
+
+/* ---------- flags ---------- */
+
+.flag-list { display: flex; flex-direction: column; gap: 12px; }
+
+.flag {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+
+.flag-clear { color: var(--text-secondary); font-size: 14px; }
+.flag-head { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+
+.flag-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid;
+  border-radius: 999px;
+  padding: 1px 9px;
+}
+
+.flag-subject { font-size: 12.5px; color: var(--text-muted); }
+.flag-headline { font-size: 15px; margin: 0 0 6px; letter-spacing: -0.01em; }
+.flag-detail { margin: 0; color: var(--text-secondary); font-size: 14px; max-width: 92ch; }
+
+.status-pill { font-size: 13px; font-weight: 600; }
+
+/* ---------- tabs ---------- */
+
+.chart-tabs { border: none !important; }
+
+.chart-tabs .tab {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-muted) !important;
+  font-size: 12.5px !important;
+  font-weight: 600;
+  padding: 7px 14px !important;
+  border-radius: 7px !important;
+}
+
+.chart-tabs .tab-selected {
+  background: var(--surface-sunken) !important;
+  color: var(--text-primary) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* ---------- forms ---------- */
+
+.upload-drop {
+  border: 1.5px dashed var(--border);
+  border-radius: 11px;
+  padding: 26px;
+  text-align: center;
+  color: var(--text-secondary);
+  background: var(--surface-raised);
+  cursor: pointer;
+  font-size: 14px;
+}
+.upload-drop:hover { border-color: var(--accent); color: var(--text-primary); }
+.upload-ready { border-color: var(--good); color: var(--text-primary); }
+
+.btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-secondary { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+.btn-secondary:hover { color: var(--text-primary); border-color: var(--text-muted); }
+
+.result-ok, .result-error, .result-warn {
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-top: 16px;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--good);
+  background: var(--surface-raised);
+}
+.result-error { border-left-color: var(--critical); }
+.result-warn { border-left-color: #fab219; }
+.result-ok ul, .result-error ul, .result-warn ul { margin: 8px 0 0; padding-left: 20px; color: var(--text-secondary); }
+
+/* Dropdowns need explicit theming: their default palette is fixed light. */
+.Select-control, .Select-menu-outer, .is-open .Select-control {
+  background: var(--surface-raised) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+.Select-value-label, .Select-placeholder, .Select--single > .Select-control .Select-value {
+  color: var(--text-primary) !important;
+}
+.VirtualizedSelectOption { background: var(--surface-raised); color: var(--text-primary); }
+.VirtualizedSelectFocusedOption { background: var(--surface-sunken); }
+
+.dash-table-container .previous-next-container,
+.dash-table-container .dash-filter input {
+  color: var(--text-secondary) !important;
+}

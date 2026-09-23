@@ -1,0 +1,35 @@
+# Virtual environment. Recreate with:
+#   python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Generated data. Everything under data/raw/ today is synthetic, produced by
+# src/data_generation/generate_synthetic_data.py and reproducible from its fixed
+# seed; data/qc.db is rebuilt from it by src/ingestion/bulk_load.py. Ignoring the
+# folder also means that once real spotting runs are uploaded here they stay out of
+# version control, where lab record does not belong.
+data/raw/
+data/*.db
+data/*.db-journal
+
+# Day-to-day QC reports are generated output. These patterns cover only files sitting
+# directly in reports/, since * does not match across a /, so the sample report kept
+# in reports/example/ stays tracked. It is ~5 MB because the plotting library is
+# embedded, which is what lets an archived report open years later with no network.
+reports/*.html
+reports/*.pdf
+
+# Editor and OS
+.DS_Store
+.vscode/
+.idea/
+
+# Word lock files, which reappear whenever a planning .docx is opened
+~$*
